@@ -39,6 +39,7 @@ class Printer extends EventEmitter {
 		this.enableWarnings = options.enableWarnings || false;
 		this.disableScriptInjection = options.disableScriptInjection || false;
 		this.extraHTTPHeaders = options.extraHTTPHeaders || {};
+		this.protocolTimeout = options.protocolTimeout || 180_000; // 3 minutes
 
 		this.pages = [];
 
@@ -55,7 +56,8 @@ class Printer extends EventEmitter {
 			headless: this.headless,
 			args: [],
 			ignoreHTTPSErrors: this.ignoreHTTPSErrors,
-			userDataDir: tmpDir
+			userDataDir: tmpDir,
+			protocolTimeout: this.protocolTimeout
 		};
 
 		if (process.platform === "linux") {
@@ -83,7 +85,7 @@ class Printer extends EventEmitter {
 
 	async render(input) {
 		let resolver;
-		let rendered = new Promise(function(resolve, reject) {
+		let rendered = new Promise(function (resolve, reject) {
 			resolver = resolve;
 		});
 
@@ -151,7 +153,7 @@ class Printer extends EventEmitter {
 					}
 
 					request.continue();
-				});	
+				});
 			}
 
 			if (this.disableScriptInjection) {
@@ -216,7 +218,7 @@ class Printer extends EventEmitter {
 
 			await page.exposeFunction("onRendered", (msg, width, height, orientation) => {
 				this.emit("rendered", msg, width, height, orientation);
-				resolver({msg, width, height, orientation});
+				resolver({ msg, width, height, orientation });
 			});
 
 			await page.evaluate(async () => {
@@ -286,7 +288,7 @@ class Printer extends EventEmitter {
 		}
 	}
 
-	async pdf(input, options={}) {
+	async pdf(input, options = {}) {
 		let page = await this.render(input)
 			.catch((e) => {
 				throw e;

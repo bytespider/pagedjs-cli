@@ -14,7 +14,7 @@ function commaSeparatedList(value) {
 }
 
 program
-// .version(pkg.version)
+	// .version(pkg.version)
 	.arguments("[inputPath]")
 	.option("-i, --inputs [inputs]", "Inputs")
 	.option("-o, --output [output]", "Output")
@@ -31,14 +31,14 @@ program
 	.option("--allowedPath [allowedPaths]", "Only allow access to given filesystem paths, repeatable.", collect, [])
 	.option("--allowedDomain [allowedDomains]", "Only allow access to given remote domains, repeatable", collect, [])
 	.option("--outline-tags [tags]", "Specifies that an outline should be " +
-          "generated for the resulting PDF document. [tags] specifies which " +
-          "HTML tags should be considered for that outline. " +
-          "\"h1,h2\" will trigger an outline with \"h1\" tags as root elements " +
-          "and \"h2\" elements as their childs.")
+		"generated for the resulting PDF document. [tags] specifies which " +
+		"HTML tags should be considered for that outline. " +
+		"\"h1,h2\" will trigger an outline with \"h1\" tags as root elements " +
+		"and \"h2\" elements as their childs.")
 	.option("--additional-script <script>", "Additional script tags which are " +
-          "added to the HTML document before rendering. This is useful for " +
-          "adding custom pagedjs handlers. The option can be repeated.",
-	collect, [])
+		"added to the HTML document before rendering. This is useful for " +
+		"adding custom pagedjs handlers. The option can be repeated.",
+		collect, [])
 	.option("--browserEndpoint <browserEndpoint>", "Use a remote Chrome server with browserWSEndpoint")
 	.option("--browserArgs <browserArgs>", "Launch Chrome with comma separated args", commaSeparatedList)
 	.option("--media [media]", "Emulate \"print\" or \"screen\" media, defaults to print.")
@@ -46,6 +46,7 @@ program
 	.option("--warn", "Enable warning logs")
 	.option("--disable-script-injection", "Disable in injection of the polyphill script.")
 	.option("--extra-header <header:value>", "Header to be added to the page request.", collect, [])
+	.option("--protocol-timeout <timeout>", "Set a max timeout of [ms] per protocol request")
 	.parse(process.argv);
 
 function collect(value, previous) {
@@ -70,7 +71,7 @@ try {
 
 const extraHTTPHeaders = options.extraHeader.reduce((acc, header) => {
 	const [name, ...value] = header.split(":");
-	return [ ...acc, { [name]: value.join(":") } ];
+	return [...acc, { [name]: value.join(":") }];
 }, []);
 
 let output;
@@ -95,9 +96,9 @@ if (relativePath) {
 	}
 }
 
-if (typeof(options.output) === "string") {
+if (typeof (options.output) === "string") {
 	output = path.resolve(dir, options.output);
-} else if (typeof(options.output) !== "undefined") {
+} else if (typeof (options.output) !== "undefined") {
 	output = "./" + replaceExt(path.basename(input), ".pdf");
 }
 
@@ -129,7 +130,8 @@ if (typeof input === "string") {
 		emulateMedia: options.media,
 		enableWarnings: options.warn,
 		disableScriptInjection: options.disableScriptInjection,
-		extraHTTPHeaders: extraHTTPHeaders
+		extraHTTPHeaders: extraHTTPHeaders,
+		protocolTimeout: options.protocolTimeout,
 	};
 
 	if (options.forceTransparentBackground) {
@@ -158,7 +160,7 @@ if (typeof input === "string") {
 		spinner.start("Processing");
 	});
 
-	options.outlineTags = !options.outlineTags ? ["h1","h2","h3"] : options.outlineTags.split(",");
+	options.outlineTags = !options.outlineTags ? ["h1", "h2", "h3"] : options.outlineTags.split(",");
 
 	let file;
 	if (options.html) {
